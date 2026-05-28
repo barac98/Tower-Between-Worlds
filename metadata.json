@@ -1,0 +1,6 @@
+{
+  "name": "DPS Idle Incremental",
+  "description": "An epic RPG incremental game based on the legend of Solmour in the Regat of Solarei. Study the Five Great Arts at Thalorion, upgrade legendary weapons and vestiges, and defeat Draenos's dark shadow realms.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
