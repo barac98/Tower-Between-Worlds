@@ -24,6 +24,7 @@ export interface TranslationDictionary {
   QUICK_HINT: string;
   QUICK_HINT_DESC: string;
   TAB_CARDS: string;
+  TAB_BATTLE: string;
   TAB_GUILD: string;
   TAB_STATS: string;
   DUNGEON_RUN_ANALYTICS: string;
@@ -110,6 +111,7 @@ export const translations: Record<'en' | 'ro', TranslationDictionary> = {
     QUICK_HINT: "ELDRIN'S QUICK ADVICE",
     QUICK_HINT_DESC: "Defeating generic monsters clears your path towards the Generali of the Shadow Realm. Soft-resets at Thalorion's Council grant dynamic master ranks & permanent vestiges that do not disappear!",
     TAB_CARDS: "Relics & Chests",
+    TAB_BATTLE: "Battle Arena",
     TAB_GUILD: "Council Resets",
     TAB_STATS: "Dungeon Stats",
     DUNGEON_RUN_ANALYTICS: "THALORION TRAINING DATA",
@@ -194,6 +196,7 @@ export const translations: Record<'en' | 'ro', TranslationDictionary> = {
     QUICK_HINT: "SFATUL LUI ELDRIN",
     QUICK_HINT_DESC: "Înfrângerea gărzilor curăță drumul către Generalii Umbrei. Inițierile la Consiliul de la Thalorion deblochează specializări permanente și amulete legendare ce supraviețuiesc soft-reseturilor!",
     TAB_CARDS: "Relicve & Cufere",
+    TAB_BATTLE: "Arena de Luptă",
     TAB_GUILD: "Consiliu (Resets)",
     TAB_STATS: "Statistici Run",
     DUNGEON_RUN_ANALYTICS: "ANALITICA ANTRENAMENTULUI",

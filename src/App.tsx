@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Coins, Award, HelpCircle, X, ShieldAlert, Sparkles, Trophy } from 'lucide-react';
+import { Coins, Award, HelpCircle, X, ShieldAlert, Sparkles, Trophy, Swords } from 'lucide-react';
 import { Decimal } from './utils/decimal';
 import { CardDefinition, CardState, GuildType, GameStats, SaveState } from './types/game';
 import { CARD_TEMPLATES, CHEST_DATA, MONSTER_PREFIXES, MONSTER_TYPES, MONSTER_BOSSES } from './utils/gameData';
@@ -66,7 +66,7 @@ export default function App() {
   const [soundOn, setSoundOn] = useState<boolean>(true);
   const [autoAdvance, setAutoAdvance] = useState<boolean>(true);
   const [buyMultiplier, setBuyMultiplier] = useState<'1' | '3' | '10' | '99' | 'MAX'>('1');
-  const [activeTab, setActiveTab] = useState<'cards' | 'guild' | 'stats'>('cards');
+  const [activeTab, setActiveTab] = useState<'battle' | 'cards' | 'guild' | 'stats'>('battle');
   const [language, setLanguage] = useState<'en' | 'ro'>('en');
   const t = translations[language];
 
@@ -827,8 +827,10 @@ export default function App() {
     loadGameProgress();
   }, []);
 
+  const rightTab = activeTab === 'battle' ? 'cards' : activeTab;
+
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none antialiased md:relative" id="pwa-game-root">
+    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none antialiased md:relative pb-16 lg:pb-0" id="pwa-game-root">
       
       {/* Sticky top metrics information */}
       <Header
@@ -856,7 +858,7 @@ export default function App() {
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 py-4 md:py-6 flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:overflow-hidden">
         
         {/* LEFT COMPONENT (Always persistent: Combat zone viewport) */}
-        <section className="col-span-1 lg:col-span-5 flex flex-col gap-4 self-start" id="arena-column">
+        <section className={`col-span-1 lg:col-span-5 flex flex-col gap-4 self-start w-full ${activeTab === 'battle' ? 'flex' : 'hidden lg:flex'}`} id="arena-column">
           <CombatZone
             currentStage={currentStage}
             highestUnlockedStage={highestStageReached}
@@ -886,14 +888,14 @@ export default function App() {
         </section>
 
         {/* RIGHT COMPONENT (Scrollable Upgrade Lists tabs) */}
-        <section className="col-span-1 lg:col-span-7 flex flex-col gap-4" id="controls-tab-column">
+        <section className={`col-span-1 lg:col-span-7 flex flex-col gap-4 w-full ${activeTab !== 'battle' ? 'flex' : 'hidden lg:flex'}`} id="controls-tab-column">
           {/* Sticky horizontal Tab selectors bar */}
-          <nav className="flex bg-slate-900 border border-slate-800 p-1 rounded-2xl w-full sm:w-fit justify-between sm:justify-start gap-1 sm:gap-1.5" id="nav-tabs-bar">
+          <nav className="hidden lg:flex bg-slate-900 border border-slate-800 p-1 rounded-2xl w-full sm:w-fit justify-between sm:justify-start gap-1 sm:gap-1.5" id="nav-tabs-bar">
             <button
               id="tab-cards-btn"
               onClick={() => setActiveTab('cards')}
               className={`flex-1 sm:flex-initial px-2.5 sm:px-5 py-2 text-[11px] sm:text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                activeTab === 'cards' 
+                rightTab === 'cards' 
                   ? 'bg-amber-500 text-slate-950 shadow font-black scale-102' 
                   : 'text-slate-400 hover:text-white'
               }`}
@@ -904,7 +906,7 @@ export default function App() {
               id="tab-guilds-btn"
               onClick={() => setActiveTab('guild')}
               className={`flex-1 sm:flex-initial px-2.5 sm:px-5 py-2 text-[11px] sm:text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                activeTab === 'guild' 
+                rightTab === 'guild' 
                   ? 'bg-fuchsia-500 text-white shadow font-black scale-102' 
                   : 'text-slate-400 hover:text-white'
               }`}
@@ -915,7 +917,7 @@ export default function App() {
               id="tab-stats-btn"
               onClick={() => setActiveTab('stats')}
               className={`flex-1 sm:flex-initial px-2.5 sm:px-5 py-2 text-[11px] sm:text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                activeTab === 'stats' 
+                rightTab === 'stats' 
                   ? 'bg-cyan-500 text-slate-950 shadow font-black scale-102' 
                   : 'text-slate-400 hover:text-white'
               }`}
@@ -926,7 +928,7 @@ export default function App() {
 
           {/* ACTIVE CONTENT RENDERING PANEL */}
           <div className="flex-1 overflow-y-auto">
-            {activeTab === 'cards' && (
+            {rightTab === 'cards' && (
               <CardsTab
                 gold={gold}
                 guildPoints={guildPoints}
@@ -942,7 +944,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === 'guild' && (
+            {rightTab === 'guild' && (
               <GuildTab
                 currentStage={currentStage}
                 highestStageReached={highestStageReached}
@@ -956,7 +958,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === 'stats' && (
+            {rightTab === 'stats' && (
               <StatsTab
                 stats={stats}
                 currentStage={currentStage}
@@ -1011,6 +1013,54 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Mobile Sticky Bottom Tab Bar */}
+      <nav className="lg:hidden flex bg-slate-900 border-t border-slate-850 p-1.5 fixed bottom-0 left-0 right-0 z-50 justify-around gap-1 shadow-[0_-8px_24px_rgba(0,0,0,0.6)]" id="mobile-tabs-bar">
+        <button
+          onClick={() => setActiveTab('battle')}
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 text-[10px] font-bold rounded-xl transition cursor-pointer gap-1 ${
+            activeTab === 'battle'
+              ? 'bg-emerald-500 text-slate-950 shadow font-black scale-102'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Swords className="w-4 h-4 shrink-0" />
+          <span>{t.TAB_BATTLE}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('cards')}
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 text-[10px] font-bold rounded-xl transition cursor-pointer gap-1 ${
+            activeTab === 'cards'
+              ? 'bg-amber-500 text-slate-950 shadow font-black scale-102'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Trophy className="w-4 h-4 shrink-0" />
+          <span>{t.TAB_CARDS}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('guild')}
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 text-[10px] font-bold rounded-xl transition cursor-pointer gap-1 ${
+            activeTab === 'guild'
+              ? 'bg-fuchsia-500 text-white shadow font-black scale-102'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Award className="w-4 h-4 shrink-0" />
+          <span>{t.TAB_GUILD}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('stats')}
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 text-[10px] font-bold rounded-xl transition cursor-pointer gap-1 ${
+            activeTab === 'stats'
+              ? 'bg-cyan-500 text-slate-950 shadow font-black scale-102'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Coins className="w-4 h-4 shrink-0" />
+          <span>{t.TAB_STATS}</span>
+        </button>
+      </nav>
     </main>
   );
 }

@@ -10,6 +10,53 @@ import { CARD_TEMPLATES, CHEST_DATA } from '../utils/gameData';
 import { Decimal } from '../utils/decimal';
 import { translations, cardNames } from '../utils/translations';
 
+// Import beautiful bold & easy illustration backgrounds
+import tapCardImg from '../assets/images/tap_card_1780059089622.png';
+import poisonCardImg from '../assets/images/poison_card_1780059110798.png';
+import earthCardImg from '../assets/images/earth_card_1780059128011.png';
+import iceCardImg from '../assets/images/ice_card_1780059142710.png';
+import goldCardImg from '../assets/images/gold_card_1780059158821.png';
+import guildCardImg from '../assets/images/guild_card_1780059181955.png';
+
+// Import beautiful chest illustration backgrounds
+import commonChestImg from '../assets/images/common_chest_1780060888962.png';
+import rareChestImg from '../assets/images/rare_chest_1780060908616.png';
+import legendaryChestImg from '../assets/images/legendary_chest_1780060933712.png';
+import guildChestImg from '../assets/images/guild_chest_1780060958283.png';
+
+export const getCardBgImage = (type: string) => {
+  switch (type) {
+    case 'TAP_DAMAGE':
+      return tapCardImg;
+    case 'POISON_DPS':
+      return poisonCardImg;
+    case 'EARTH_BURST':
+      return earthCardImg;
+    case 'ICE_CHILL':
+      return iceCardImg;
+    case 'GOLD_BOOST':
+    case 'BOSS_SHRED':
+      return goldCardImg;
+    case 'GUILD_BOOST':
+    default:
+      return guildCardImg;
+  }
+};
+
+export const getChestBgImage = (tierKey: string) => {
+  switch (tierKey) {
+    case 'common':
+      return commonChestImg;
+    case 'rare':
+      return rareChestImg;
+    case 'legendary':
+      return legendaryChestImg;
+    case 'guild':
+    default:
+      return guildChestImg;
+  }
+};
+
 interface CardsTabProps {
   gold: Decimal;
   guildPoints: Decimal;
@@ -109,13 +156,13 @@ export const CardsTab: React.FC<CardsTabProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full pb-10" id="cards-tab-panel">
+    <div className="flex flex-col gap-4 w-full pb-6" id="cards-tab-panel">
       
       {/* Selector Multipliers */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex flex-col">
-          <span className="text-sm font-black text-slate-100 uppercase tracking-tight">{t.BUY_UPGRADES}</span>
-          <span className="text-xs text-slate-400 mt-0.5 font-mono">{language === 'ro' ? 'Selectează multiplul pentru upgrade-uri rapide' : 'Select multiplier for manual level boosts'}</span>
+          <span className="text-xs sm:text-sm font-black text-slate-100 uppercase tracking-tight">{t.BUY_UPGRADES}</span>
+          <span className="text-[10px] sm:text-xs text-slate-400 mt-0.5 font-mono">{language === 'ro' ? 'Selectează multiplul pentru upgrade-uri rapide' : 'Select multiplier for manual level boosts'}</span>
         </div>
 
         <div className="grid grid-cols-5 bg-slate-950 p-1 rounded-xl border border-slate-800 w-full sm:w-auto" id="buy-multipliers-selector">
@@ -123,7 +170,7 @@ export const CardsTab: React.FC<CardsTabProps> = ({
             <button
               key={m}
               onClick={() => onBuyMultiplierChange(m)}
-              className={`py-1.5 text-[11px] sm:text-xs font-black font-mono rounded-lg transition-all cursor-pointer text-center ${
+              className={`py-1 text-[10px] sm:text-xs font-black font-mono rounded-lg transition-all cursor-pointer text-center ${
                 buyMultiplier === m
                   ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10 scale-105'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -163,6 +210,7 @@ export const CardsTab: React.FC<CardsTabProps> = ({
               const isGuild = tierKey === 'guild';
               const canAfford = isGuild ? guildPoints.gte(cost) : gold.gte(cost);
               const isDisabled = !canAfford || chestOpeningInProgress;
+              const chestBg = getChestBgImage(tierKey);
 
               return (
                 <div
@@ -172,15 +220,23 @@ export const CardsTab: React.FC<CardsTabProps> = ({
                       handleOpenChestAction(tierKey);
                     }
                   }}
-                  className={`bg-gradient-to-b ${chest.color} border-2 rounded-2xl p-2.5 md:p-4 flex flex-col justify-between gap-3 md:gap-4 relative transition-all duration-250 select-none ${
+                  className={`bg-gradient-to-b ${chest.color} border-2 rounded-2xl p-2.5 md:p-4 flex flex-col justify-between gap-3 md:gap-4 relative transition-all duration-250 select-none overflow-hidden group ${
                     !isDisabled
-                      ? 'border-amber-400/40 opacity-100 hover:border-amber-400/80 hover:scale-[1.02] active:scale-98 shadow-lg cursor-pointer'
+                      ? 'border-amber-400/40 opacity-100 hover:border-amber-400 hover:scale-[1.02] active:scale-98 shadow-lg cursor-pointer'
                       : 'border-slate-800 opacity-60 cursor-not-allowed'
                   }`}
                   title={isDisabled && chestOpeningInProgress ? (language === 'ro' ? 'Deschidere în curs...' : 'Opening in progress...') : (language === 'ro' ? 'Apasă pentru a deschide cufărul' : 'Click to open chest')}
                 >
+                  {/* Background Illustration */}
+                  <img
+                    src={chestBg}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-luminosity pointer-events-none select-none transition-transform duration-500 group-hover:scale-110"
+                  />
+
                   {/* Visual Chest Design */}
-                  <div className="flex flex-col">
+                  <div className="flex flex-col z-10">
                     {/* Chest Logo Outline */}
                     <div className="text-[8px] md:text-[10px] font-mono tracking-wider uppercase opacity-45 font-bold mb-1">
                       {tierKey === 'guild' ? (language === 'ro' ? 'cufăr breaslă' : 'guild chest') : `${tierKey} chest`}
@@ -219,15 +275,16 @@ export const CardsTab: React.FC<CardsTabProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center sm:items-start border-t border-white/10 pt-2 md:pt-3 mt-1">
+                  <div className="flex flex-col items-center sm:items-start border-t border-white/10 pt-2 md:pt-3 mt-1 z-10">
                     <span className="text-[8px] md:text-[10px] uppercase font-mono text-slate-300/60 font-bold leading-none">{language === 'ro' ? 'Preț' : 'Price'}</span>
-                    <span className={`text-[10px] sm:text-xs md:text-sm font-black font-mono mt-1 leading-none ${isGuild ? 'text-fuchsia-400' : 'text-amber-400'}`}>
+                    <span className={`text-[10px] sm:text-xs md:text-sm font-black font-mono mt-1 leading-none ${isGuild ? 'text-fuchsia-400 font-bold' : 'text-amber-400'}`}>
                       {cost.format(0)} {isGuild ? 'GP' : 'Gold'}
                     </span>
                   </div>
                 </div>
               );
             })}
+
           </div>
 
           {/* Right Arrow Button */}
@@ -245,20 +302,19 @@ export const CardsTab: React.FC<CardsTabProps> = ({
       </div>
 
       {/* THE CARDS GRID */}
-      <div className="flex flex-col gap-3 mt-4" id="deck-section">
-        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+      <div className="flex flex-col gap-2 mt-2" id="deck-section">
+        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 pt-1">
           <Trophy className="w-4 h-4 text-amber-500" />
           {language === 'ro' ? 'DECK ACTIV ȘI RELICVE' : 'ACTIVE DECK & INVENTORY'}
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cards-inventory-grid">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 pb-4" id="cards-inventory-grid">
           {CARD_TEMPLATES.map((card) => {
             const isUnlocked = !!playerCardState[card.id];
             const { targetLevels, price, canAfford, level, silverLevel } = getUpgradeCalculations(card);
 
             // Calculate current compounding stats bonus
             const silverMultiplier = 1 + silverLevel; // Silver adds +100% per level compounding (x2, x3, x4)
-            const currentBonusPercentage = level * card.valueMultiplierPerLevel * 100;
             const absoluteBase = card.baseValue;
             
             // Format descriptive bonuses
@@ -283,103 +339,101 @@ export const CardsTab: React.FC<CardsTabProps> = ({
               bonusLabel = `+${val}% GP Accumulation`;
             }
 
+            const cardBg = getCardBgImage(card.type);
+
             return (
               <div
                 key={card.id}
-                className={`flex flex-col justify-between border rounded-2xl p-4 transition-all relative shadow-sm ${
+                className={`flex flex-col justify-between border rounded-xl p-2.5 sm:p-3 pb-3 transition-all relative shadow-sm overflow-hidden min-h-[145px] sm:min-h-[160px] ${
                   isUnlocked
-                    ? 'bg-slate-900 border-slate-800'
+                    ? 'bg-slate-900 border-slate-800 hover:border-slate-700/80'
                     : 'bg-slate-950 border-slate-900 opacity-40 hover:opacity-100 select-none'
                 }`}
               >
                 {/* Unlocked Card Content */}
                 {isUnlocked ? (
                   <>
+                    {/* Background Illustration */}
+                    <img
+                      src={cardBg}
+                      alt=""
+                      referrerPolicy="no-referrer"
+                      className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity pointer-events-none select-none transition-transform duration-500 hover:scale-110"
+                    />
+
                     {/* Upper details */}
-                    <div className="flex flex-col gap-2">
-                       <div className="flex items-center justify-between">
-                        {/* Dot indicator representing elemental style */}
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-1.5 z-10">
+                       <div className="flex items-center justify-between gap-1">
+                        {/* Dot indicator representing elemental style + Tooltip */}
+                        <div className="flex items-center gap-1 truncate">
                           <span
-                            className="w-2.5 h-2.5 rounded-full animate-pulse shadow-glow"
+                            className="w-2 h-2 rounded-full animate-pulse shadow-glow shrink-0"
                             style={{ backgroundColor: card.colorHex }}
                           />
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-bold">
+                          <span className="text-[8.5px] sm:text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold truncate">
                             {language === 'ro' 
-                              ? (card.chestTier === 'legendary' ? 'Legendar' : (card.chestTier === 'rare' ? 'Rar' : 'Comun')) 
-                              : card.chestTier} Tier
+                              ? (card.chestTier === 'legendary' ? 'Leg' : (card.chestTier === 'rare' ? 'Rar' : 'Com')) 
+                              : card.chestTier.substring(0, 3)}
                           </span>
-                        </div>
 
-                        {/* Levels badges */}
-                        <div className="flex items-center gap-1.5 text-[10px] font-mono font-black" id={`card-levels-${card.id}`}>
-                          {silverLevel > 0 && (
-                            <span className="bg-slate-200 text-slate-950 px-2 py-0.5 rounded border border-white flex items-center gap-0.5">
-                              🥈 S.Lv {silverLevel}
-                            </span>
-                          )}
-                          <span className="bg-slate-800 text-slate-100 px-2 py-0.5 rounded border border-slate-705">
-                            Lv {level}/100
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col mt-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-sm sm:text-base font-black text-white break-normal">
-                            {cardNames[card.id]?.[language]?.name || card.name}
-                          </span>
-                          
                           <div className="relative group/tooltip inline-block pointer-events-auto shrink-0">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setShowDesc(prev => ({ ...prev, [card.id]: !prev[card.id] }));
                               }}
-                              className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition cursor-pointer animate-fade-in"
+                              className="p-0.5 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition cursor-pointer"
                               title={language === 'ro' ? 'Informații relicvă' : 'Relic information'}
                             >
                               <HelpCircle className="w-3.5 h-3.5" />
                             </button>
                             
                             {/* Hover & click compatible absolute tooltip */}
-                            <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2.5 bg-slate-950 border border-slate-800 text-[11px] text-slate-250 rounded-xl shadow-2xl transition duration-150 z-50 leading-relaxed text-center font-sans ${
+                            <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 sm:w-64 p-2 sm:p-2.5 bg-slate-950 border border-slate-800 text-[10px] sm:text-[11px] text-slate-200 rounded-xl shadow-2xl transition duration-150 z-50 leading-relaxed text-center font-sans ${
                               showDesc[card.id] ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:pointer-events-auto'
                             }`}>
+                              <p className="font-bold text-amber-400 mb-1">
+                                {cardNames[card.id]?.[language]?.name || card.name}
+                              </p>
                               {cardNames[card.id]?.[language]?.description || card.description}
                               {/* Arrow down */}
                               <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-950" />
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Power / Bonus Value readouts */}
-                      <div className="bg-slate-950/60 p-2.5 border border-slate-950 rounded-xl mt-2 flex flex-col gap-1 inline-block">
-                        <div className="flex justify-between text-[11px] font-mono">
-                          <span className="text-slate-400 font-bold">{language === 'ro' ? 'Bonus Total:' : 'Total Bonus:'}</span>
-                          <span className="text-emerald-400 font-black" id={`card-bonus-${card.id}`}>{bonusLabel}</span>
+                        {/* Levels badges */}
+                        <div className="flex items-center gap-1 text-[8.5px] sm:text-[10px] font-mono font-black shrink-0" id={`card-levels-${card.id}`}>
+                          {silverLevel > 0 && (
+                            <span className="bg-slate-200 text-slate-950 px-1 py-0.5 rounded border border-white flex items-center gap-0.5">
+                              🥈 S.{silverLevel}
+                            </span>
+                          )}
+                          <span className="bg-slate-800 text-slate-100 px-1 py-0.5 rounded border border-slate-705">
+                            L.{level}/100
+                          </span>
                         </div>
-                        {silverLevel > 0 && (
-                          <div className="flex justify-between text-[10px] font-mono text-slate-400 border-t border-slate-900/40 pt-1 mt-1">
-                            <span>{language === 'ro' ? 'Multiplicator Argint:' : 'Silver Multiplier:'}</span>
-                            <span className="text-blue-300 font-bold">x{(1 + silverLevel).toFixed(0)} {language === 'ro' ? 'Multiplicare Globală' : 'Global Multiplier'}</span>
-                          </div>
-                        )}
                       </div>
                     </div>
 
+                    {/* Centered Bonus text overlaid on top of image */}
+                    <div className="flex-1 flex flex-col justify-center items-center py-4 text-center select-none z-10">
+                      <span className="text-[10px] sm:text-xs font-black font-mono tracking-tight text-emerald-400 bg-slate-950/85 px-2 py-1 rounded-lg border border-emerald-500/10 shadow-lg text-center leading-none" id={`card-bonus-${card.id}`}>
+                        {bonusLabel}
+                      </span>
+                    </div>
+
                     {/* Lower buttons and cost actions */}
-                    <div className="flex flex-col gap-2 border-t border-slate-950 pt-3 mt-3">
+                    <div className="flex flex-col gap-1.5 border-t border-slate-950/60 pt-1.5 mt-1 z-10">
                       {/* Cost metrics */}
                       {level < 100 ? (
-                        <div className="flex items-center justify-between">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
-                              Cost (+{targetLevels} {language === 'ro' ? 'Niv' : 'Lv'})
+                        <div className="flex items-center justify-between gap-1">
+                          <div className="flex flex-col truncate">
+                            <span className="text-[7.5px] sm:text-[9px] font-mono font-bold uppercase tracking-wider text-slate-500 truncate">
+                              +{targetLevels} {language === 'ro' ? 'Niv' : 'Lv'}
                             </span>
-                            <span className="text-sm font-bold text-amber-500 font-mono mt-0.5">
-                              {price.format(1)} {language === 'ro' ? 'Aur' : 'Gold'}
+                            <span className="text-[10.5px] sm:text-xs font-bold text-amber-500 font-mono leading-none mt-0.5 truncate">
+                              {price.format(0)} {language === 'ro' ? 'Aur' : 'Gold'}
                             </span>
                           </div>
 
@@ -387,29 +441,29 @@ export const CardsTab: React.FC<CardsTabProps> = ({
                             id={`card-upgrade-btn-${card.id}`}
                             disabled={!canAfford}
                             onClick={() => onUpgradeCard(card.id, targetLevels, price)}
-                            className={`px-4.5 py-1.5.5 text-xs font-black rounded-xl transition cursor-pointer active:scale-95 text-center ${
+                            className={`px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-black rounded-lg transition cursor-pointer active:scale-95 text-center shrink-0 ${
                               canAfford
-                                ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-md shadow-amber-500/10'
-                                : 'bg-slate-950 text-slate-600 border border-slate-900 cursor-not-allowed'
+                                ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-md'
+                                : 'bg-slate-955 text-slate-600 border border-slate-900/40 cursor-not-allowed'
                             }`}
                           >
-                            + {targetLevels} {language === 'ro' ? 'Niv' : 'Lv'}
+                            +{targetLevels}
                           </button>
                         </div>
                       ) : (
                         // Level 100: Ready for Silver Upgrade!
-                        <div className="flex flex-col gap-2">
-                          <div className="text-xs font-mono font-semibold text-center text-blue-300 bg-blue-950/20 border border-blue-900/60 p-2 rounded-xl">
+                        <div className="flex flex-col gap-1">
+                          <div className="text-[8px] sm:text-[10px] font-mono font-semibold text-center text-blue-300 bg-blue-950/20 border border-blue-900/40 p-1 rounded-lg">
                             {language === 'ro' 
-                              ? '⭐ Nivel Maxim! Efectuează upgrade de Argint pentru un multiplicator permanent de +100%.' 
-                              : '⭐ Card Maxed! Perform Silver Upgrade for permanent compounding +100% boost.'}
+                              ? '⭐ Max! Upgrade Argint (+100%).' 
+                              : '⭐ Maxed! Buy Silver boost (+100%).'}
                           </div>
                           <button
                             onClick={() => onSilverUpgrade(card.id)}
-                            className="w-full py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-lg active:scale-95 transition cursor-pointer flex items-center justify-center gap-1.5"
+                            className="w-full py-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-black text-[9px] sm:text-xs rounded-lg shadow-lg active:scale-95 transition cursor-pointer flex items-center justify-center gap-1"
                           >
-                            <Award className="w-4 h-4 animate-bounce" />
-                            {language === 'ro' ? 'Efectuează Prestigiu de Argint (🥈)' : 'Trigger Silver Prestige (🥈)'}
+                            <Award className="w-3 h-3 animate-bounce" />
+                            {language === 'ro' ? 'Argint (🥈)' : 'Silver (🥈)'}
                           </button>
                         </div>
                       )}
@@ -417,13 +471,13 @@ export const CardsTab: React.FC<CardsTabProps> = ({
                   </>
                 ) : (
                   // LOCKED CARD PREVIEW
-                  <div className="flex flex-col items-center justify-center py-10 gap-2 font-sans select-none pointer-events-none">
-                    <div className="p-3 bg-slate-900/60 border border-slate-800 rounded-2xl text-slate-500">
-                      <Lock className="w-6 h-6" />
+                  <div className="flex flex-col items-center justify-center py-5 sm:py-7 gap-1 font-sans select-none pointer-events-none">
+                    <div className="p-1.5 bg-slate-900/60 border border-slate-800 rounded-xl text-slate-500">
+                      <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <span className="text-sm font-black text-slate-400 mt-2">{language === 'ro' ? 'Relicvă Blocată' : 'Card Locked'}</span>
-                    <span className="text-[11px] text-slate-600 font-mono">
-                      {language === 'ro' ? `Deschide cufere de tip ${card.chestTier}` : `Reveal from ${card.chestTier} chests`}
+                    <span className="text-[10px] sm:text-xs font-black text-slate-400 mt-1">{language === 'ro' ? 'Relicvă Blocată' : 'Card Locked'}</span>
+                    <span className="text-[8.5px] sm:text-[9.5px] text-slate-600 font-mono text-center truncate w-full">
+                      {language === 'ro' ? `Cufere ${card.chestTier}` : `${card.chestTier} chests`}
                     </span>
                   </div>
                 )}
@@ -457,17 +511,21 @@ export const CardsTab: React.FC<CardsTabProps> = ({
             )}
 
             {/* Simulated coloring book vector preview card */}
-            <div className="my-6 bg-white p-4.5 rounded-2xl border-4 border-black inline-block transform hover:scale-105 transition-transform">
-              <span className="text-xs uppercase font-mono text-slate-950 font-black">
+            <div className="my-6 bg-white p-4.5 rounded-2xl border-4 border-black inline-block transform hover:scale-105 transition-transform w-[140px]">
+              <span className="text-[9px] uppercase font-mono text-slate-950 font-black tracking-tight leading-tight block mb-2 truncate">
                 {cardNames[activeOpenedCard.card.id]?.[language]?.name || activeOpenedCard.card.name}
               </span>
               <div 
-                className="w-24 h-24 my-3 rounded-full border-3 border-black flex items-center justify-center mx-auto"
-                style={{ backgroundColor: activeOpenedCard.card.colorHex }}
+                className="w-24 h-24 my-2 rounded-2xl border-2 border-slate-950 flex items-center justify-center mx-auto overflow-hidden bg-slate-950/90"
               >
-                <Sparkles className="w-10 h-10 text-slate-950" />
+                <img
+                  src={getCardBgImage(activeOpenedCard.card.type)}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="text-[10px] font-mono font-bold text-slate-950 tracking-tight uppercase leading-none block">
+              <span className="text-[9px] font-mono font-bold text-slate-950 tracking-tight uppercase leading-none block mt-1">
                 {activeOpenedCard.card.type.replace('_', ' ')}
               </span>
             </div>
