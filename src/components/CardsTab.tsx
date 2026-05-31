@@ -12,20 +12,35 @@ import { translations, cardNames } from '../utils/translations';
 import { calculateSynergies } from '../utils/synergy';
 
 // Import beautiful bold & easy illustration backgrounds
-import tapCardImg from '../assets/images/tap_card_1780059089622.png';
-import poisonCardImg from '../assets/images/poison_card_1780059110798.png';
-import earthCardImg from '../assets/images/earth_card_1780059128011.png';
-import iceCardImg from '../assets/images/ice_card_1780059142710.png';
-import goldCardImg from '../assets/images/gold_card_1780059158821.png';
-import guildCardImg from '../assets/images/guild_card_1780059181955.png';
+import tapCardImg from '../assets/images/serious_tap_card_1780265090238.png';
+import poisonCardImg from '../assets/images/serious_poison_card_1780265106088.png';
+import earthCardImg from '../assets/images/serious_earth_card_1780265123668.png';
+import iceCardImg from '../assets/images/serious_ice_card_1780265138084.png';
+import goldCardImg from '../assets/images/serious_gold_card_1780265155073.png';
+import guildCardImg from '../assets/images/serious_guild_card_1780265170997.png';
 
 // Import beautiful chest illustration backgrounds
-import commonChestImg from '../assets/images/common_chest_1780060888962.png';
-import rareChestImg from '../assets/images/fantasy_rare_chest_1780263663339.png';
-import legendaryChestImg from '../assets/images/fantasy_legendary_chest_1780263680589.png';
-import guildChestImg from '../assets/images/fantasy_guild_chest_1780263696608.png';
+import commonChestImg from '../assets/images/serious_common_chest_1780265430455.png';
+import rareChestImg from '../assets/images/serious_rare_chest_1780265447300.png';
+import legendaryChestImg from '../assets/images/serious_legendary_chest_1780265466778.png';
+import guildChestImg from '../assets/images/serious_guild_chest_1780265481116.png';
 
-export const getCardBgImage = (type: string) => {
+// Import beautiful serious fantasy card backgrounds
+import rareFantasyCardImg from '../assets/images/serious_rare_fantasy_card_1780265187042.png';
+import legendaryFantasyCardImg from '../assets/images/serious_legendary_fantasy_card_1780265201963.png';
+import guildFantasyCardImg from '../assets/images/serious_guild_fantasy_card_1780265220549.png';
+
+export const getCardBgImage = (type: string, tier: string) => {
+  if (tier === 'rare') {
+    return rareFantasyCardImg;
+  }
+  if (tier === 'legendary') {
+    return legendaryFantasyCardImg;
+  }
+  if (tier === 'guild') {
+    return guildFantasyCardImg;
+  }
+
   switch (type) {
     case 'TAP_DAMAGE':
       return tapCardImg;
@@ -283,7 +298,7 @@ export const CardsTab: React.FC<CardsTabProps> = ({
                       src={chestBg}
                       alt=""
                       referrerPolicy="no-referrer"
-                      className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity pointer-events-none select-none transition-transform duration-500 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover opacity-55 pointer-events-none select-none transition-transform duration-500 group-hover:scale-105"
                     />
 
                     {/* Visual Chest Design */}
@@ -482,7 +497,7 @@ export const CardsTab: React.FC<CardsTabProps> = ({
               bonusLabel = `+${val}% GP`;
             }
 
-            const cardBg = getCardBgImage(card.type);
+            const cardBg = getCardBgImage(card.type, card.chestTier);
             const isNewlyUnlocked = !!newlyUnlockedIds[card.id];
 
             return (
@@ -505,7 +520,7 @@ export const CardsTab: React.FC<CardsTabProps> = ({
                       src={cardBg}
                       alt=""
                       referrerPolicy="no-referrer"
-                      className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity pointer-events-none select-none transition-transform duration-500 hover:scale-110"
+                      className="absolute inset-0 w-full h-full object-cover opacity-65 pointer-events-none select-none transition-transform duration-500 hover:scale-110"
                     />
 
                     {/* Upper details */}
@@ -664,7 +679,7 @@ export const CardsTab: React.FC<CardsTabProps> = ({
                 className="w-24 h-24 my-2 rounded-2xl border-2 border-slate-950 flex items-center justify-center mx-auto overflow-hidden bg-slate-950/90"
               >
                 <img
-                  src={getCardBgImage(activeOpenedCard.card.type)}
+                  src={getCardBgImage(activeOpenedCard.card.type, activeOpenedCard.card.chestTier)}
                   alt=""
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover"
@@ -746,7 +761,7 @@ export const CardsTab: React.FC<CardsTabProps> = ({
             : `+${val}% GP Gain on Reset (Increases to +${nextVal}%)`;
         }
 
-        const cardBg = getCardBgImage(card.type);
+        const cardBg = getCardBgImage(card.type, card.chestTier);
         const name = getCleanCardName(card.id, card.name, language);
         const description = cardNames[card.id]?.[language]?.description || card.description;
 
