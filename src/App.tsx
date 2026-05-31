@@ -4,14 +4,16 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Coins, Award, HelpCircle, X, ShieldAlert, Sparkles, Trophy, Swords } from 'lucide-react';
+import { Coins, Award, HelpCircle, X, ShieldAlert, Sparkles, Trophy, Swords, Layers } from 'lucide-react';
 import { Decimal } from './utils/decimal';
 import { CardDefinition, CardState, GuildType, GameStats, SaveState } from './types/game';
 import { CARD_TEMPLATES, CHEST_DATA, MONSTER_PREFIXES, MONSTER_TYPES, MONSTER_BOSSES } from './utils/gameData';
+import { calculateSynergies } from './utils/synergy';
 import { Header } from './components/Header';
 import { translations } from './utils/translations';
 import { CombatZone } from './components/CombatZone';
 import { CardsTab } from './components/CardsTab';
+import { SynergyTab } from './components/SynergyTab';
 import { GuildTab } from './components/GuildTab';
 import { StatsTab } from './components/StatsTab';
 
@@ -66,7 +68,7 @@ export default function App() {
   const [soundOn, setSoundOn] = useState<boolean>(true);
   const [autoAdvance, setAutoAdvance] = useState<boolean>(true);
   const [buyMultiplier, setBuyMultiplier] = useState<'1' | '3' | '10' | '99' | 'MAX'>('1');
-  const [activeTab, setActiveTab] = useState<'battle' | 'cards' | 'guild' | 'stats'>('battle');
+  const [activeTab, setActiveTab] = useState<'battle' | 'cards' | 'synergy' | 'guild' | 'stats'>('battle');
   const [language, setLanguage] = useState<'en' | 'ro'>('en');
   const t = translations[language];
 
@@ -131,6 +133,13 @@ export default function App() {
       power = power.mul(1 + rank * 1.0); // +100% per Rank
     }
 
+    // Apply Tectonic Strike active synergy
+    const activeSynergies = calculateSynergies(playerCardState);
+    const tapSynergy = activeSynergies.find(s => s.id === 'tectonic_strike');
+    if (tapSynergy && tapSynergy.isActive) {
+      power = power.mul(tapSynergy.multiplier);
+    }
+
     return power;
   };
 
@@ -175,6 +184,16 @@ export default function App() {
       poison = poison.mul(boost);
       ice = ice.mul(boost);
       earth = earth.mul(boost);
+    }
+
+    // Apply Corrosive Frost active synergy to passive damage types
+    const activeSynergies = calculateSynergies(playerCardState);
+    const dpsSynergy = activeSynergies.find(s => s.id === 'corrosive_frost');
+    if (dpsSynergy && dpsSynergy.isActive) {
+      base = base.mul(dpsSynergy.multiplier);
+      poison = poison.mul(dpsSynergy.multiplier);
+      ice = ice.mul(dpsSynergy.multiplier);
+      earth = earth.mul(dpsSynergy.multiplier);
     }
 
     return { base, poison, ice, earth };
@@ -250,6 +269,34 @@ export default function App() {
   const playtimeTimerRef = useRef<number>(0);
   const earthquakeTimerRef = useRef<number>(0);
 
+  // --- REAL-TIME DPS HISTORY TRACKING ---
+  const accumulatedDamageRef = useRef<Decimal>(new Decimal(0));
+  const [dpsHistory, setDpsHistory] = useState<{ time: string; dps: number }[]>(() => {
+    return Array.from({ length: 60 }, (_, i) => ({
+      time: `${59 - i}s`,
+      dps: 0,
+    }));
+  });
+
+  // Periodically log real-time DPS every second
+  useEffect(() => {
+    const dpsLogger = setInterval(() => {
+      const currentDamage = accumulatedDamageRef.current;
+      accumulatedDamageRef.current = new Decimal(0);
+      const dpsVal = currentDamage.toNumber();
+
+      setDpsHistory((prev) => {
+        const next = [...prev.slice(1), { time: '0s', dps: dpsVal }];
+        return next.map((item, idx) => ({
+          time: `${59 - idx}s`,
+          dps: item.dps,
+        }));
+      });
+    }, 1000);
+
+    return () => clearInterval(dpsLogger);
+  }, []);
+
   // Core Game Ticker effect (Runs every 100ms with delta-time adjustment!)
   useEffect(() => {
     const gameTicker = setInterval(() => {
@@ -298,6 +345,14 @@ export default function App() {
 
       // 3. Subtract HP from current monster
       if (monsterCurrentHP.gt(0) && totalTickDamage.gt(0)) {
+        if (isBossMode) {
+          const bossSynergies = calculateSynergies(playerCardState);
+          const allianceSynergy = bossSynergies.find(s => s.id === 'vanguard_accord');
+          if (allianceSynergy && allianceSynergy.isActive) {
+            totalTickDamage = totalTickDamage.mul(allianceSynergy.multiplier);
+          }
+        }
+        accumulatedDamageRef.current = accumulatedDamageRef.current.add(totalTickDamage);
         setMonsterCurrentHP((prevHP) => {
           const nextHP = prevHP.sub(totalTickDamage);
           if (nextHP.lte(0)) {
@@ -335,8 +390,16 @@ export default function App() {
         }
       });
       tapPower = tapPower.mul(bossBonus);
+
+      // Apply Thalorion Alliance active synergy
+      const activeSynergiesObj = calculateSynergies(playerCardState);
+      const allianceSynergy = activeSynergiesObj.find(s => s.id === 'vanguard_accord');
+      if (allianceSynergy && allianceSynergy.isActive) {
+        tapPower = tapPower.mul(allianceSynergy.multiplier);
+      }
     }
 
+    accumulatedDamageRef.current = accumulatedDamageRef.current.add(tapPower);
     setMonsterCurrentHP((prev) => {
       const next = prev.sub(tapPower);
       if (next.lte(0)) {
@@ -375,7 +438,12 @@ export default function App() {
       baseDrop = baseDrop.mul(4);
     }
 
-    const finalGoldEarned = baseDrop.mul(goldMultiplier);
+    // Apply Alchemic Transmutation active synergy
+    const activeSynergiesObj = calculateSynergies(playerCardState);
+    const goldSynergy = activeSynergiesObj.find(s => s.id === 'alchemic_fortune');
+    const goldSynergyMultiplier = goldSynergy && goldSynergy.isActive ? goldSynergy.multiplier : 1;
+
+    const finalGoldEarned = baseDrop.mul(goldMultiplier).mul(goldSynergyMultiplier);
 
     // Award gold
     setGold((prev) => prev.add(finalGoldEarned));
@@ -903,6 +971,17 @@ export default function App() {
               <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 hidden sm:inline-block" /> <span className="truncate">{t.TAB_CARDS}</span>
             </button>
             <button
+              id="tab-synergy-btn"
+              onClick={() => setActiveTab('synergy')}
+              className={`flex-1 sm:flex-initial px-2.5 sm:px-5 py-2 text-[11px] sm:text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                rightTab === 'synergy' 
+                  ? 'bg-emerald-500 text-slate-950 shadow font-black scale-102' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 hidden sm:inline-block" /> <span className="truncate">{t.TAB_SYNERGY}</span>
+            </button>
+            <button
               id="tab-guilds-btn"
               onClick={() => setActiveTab('guild')}
               className={`flex-1 sm:flex-initial px-2.5 sm:px-5 py-2 text-[11px] sm:text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
@@ -944,6 +1023,13 @@ export default function App() {
               />
             )}
 
+            {rightTab === 'synergy' && (
+              <SynergyTab
+                playerCardState={playerCardState}
+                language={language}
+              />
+            )}
+
             {rightTab === 'guild' && (
               <GuildTab
                 currentStage={currentStage}
@@ -952,6 +1038,7 @@ export default function App() {
                 activeGuild={activeGuild}
                 guildLevels={guildLevels}
                 perks={perks}
+                playerCardState={playerCardState}
                 onBuyPerk={handleBuyPerk}
                 onPrestige={handlePrestige}
                 language={language}
@@ -972,6 +1059,7 @@ export default function App() {
                 onImportString={handleImportString}
                 onExportStateString={handleExportStateString}
                 language={language}
+                dpsHistory={dpsHistory}
               />
             )}
           </div>
@@ -1037,6 +1125,17 @@ export default function App() {
         >
           <Trophy className="w-4 h-4 shrink-0" />
           <span>{t.TAB_CARDS}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('synergy')}
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 text-[10px] font-bold rounded-xl transition cursor-pointer gap-1 ${
+            activeTab === 'synergy'
+              ? 'bg-emerald-500 text-slate-950 shadow font-black scale-102'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Layers className="w-4 h-4 shrink-0" />
+          <span>{t.TAB_SYNERGY}</span>
         </button>
         <button
           onClick={() => setActiveTab('guild')}

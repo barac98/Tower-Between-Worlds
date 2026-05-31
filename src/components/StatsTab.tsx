@@ -4,9 +4,18 @@
  */
 
 import React, { useState } from 'react';
-import { BarChart2, ShieldCheck, Copy, Check, RefreshCw, Key, Award, Flame, Zap } from 'lucide-react';
+import { BarChart2, ShieldCheck, Copy, Check, RefreshCw, Key, Award, Flame, Zap, LineChart as ChartIcon } from 'lucide-react';
 import { GameStats } from '../types/game';
 import { Decimal } from '../utils/decimal';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts';
 
 interface StatsTabProps {
   stats: GameStats;
@@ -21,6 +30,7 @@ interface StatsTabProps {
   onImportString: (saveString: string) => boolean;
   onExportStateString: () => string;
   language?: 'en' | 'ro';
+  dpsHistory?: { time: string; dps: number }[];
 }
 
 export const StatsTab: React.FC<StatsTabProps> = ({
@@ -35,6 +45,7 @@ export const StatsTab: React.FC<StatsTabProps> = ({
   onImportString,
   onExportStateString,
   language = 'en',
+  dpsHistory = [],
 }) => {
   const [importText, setImportText] = useState('');
   const [copied, setCopied] = useState(false);
@@ -87,7 +98,7 @@ export const StatsTab: React.FC<StatsTabProps> = ({
     }
   };
 
-  const totalPassiveDps = activeBaseDps
+    const totalPassiveDps = activeBaseDps
     .add(activePoisonDps)
     .add(activeIceDps);
 
@@ -182,6 +193,79 @@ export const StatsTab: React.FC<StatsTabProps> = ({
               <span className="text-base sm:text-lg font-black text-emerald-400 shrink-0">{totalPassiveDps.format(1)} /s</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* REAL-TIME DPS TRENDS CHART */}
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col gap-3.5 shadow-sm">
+        <h3 className="text-sm font-black text-slate-450 uppercase tracking-widest flex items-center gap-1.5 font-sans">
+          <ChartIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+          {language === 'ro' ? 'TENDINȚĂ DPS REALE (ULTIMELE 60 SECUNDE)' : 'REAL-TIME DPS TRENDS (LAST 60 SECONDS)'}
+        </h3>
+        
+        <p className="text-xs text-slate-400 font-sans leading-relaxed">
+          {language === 'ro' 
+            ? 'Urmărește performanța totală în luptă: combină puterea pasivă a relicvelor tale cu frecvența apăsărilor tale manuale.'
+            : 'Track your total destructive combat throughput: charts passive elemental strikes and manual click tap speed in real-time.'}
+        </p>
+
+        <div className="w-full h-48 sm:h-56 bg-slate-955/40 p-2 text-slate-100 rounded-2xl border border-slate-950/40 relative">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={dpsHistory} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorDps" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.25}/>
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.01}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" opacity={0.2} />
+              <XAxis 
+                dataKey="time" 
+                stroke="#64748b" 
+                fontSize={8} 
+                tickLine={false} 
+                axisLine={false}
+                interval={14}
+              />
+              <YAxis 
+                stroke="#64748b" 
+                fontSize={8} 
+                tickLine={false} 
+                axisLine={false}
+                tickFormatter={(val) => {
+                  if (val === 0) return '0';
+                  return Decimal.from(val).format(0);
+                }}
+              />
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const value = payload[0].value as number;
+                    return (
+                      <div className="bg-slate-950/95 border border-slate-800 rounded-xl p-2.5 shadow-2xl font-mono text-xs flex flex-col gap-0.5 z-[110]">
+                        <span className="text-slate-500 font-sans text-[8px] sm:text-[9px] uppercase font-black tracking-widest leading-none">
+                          {language === 'ro' ? 'SECUNDE ÎNĂPOI:' : 'SPAN:'} {payload[0].payload.time}
+                        </span>
+                        <span className="text-emerald-400 font-extrabold text-xs sm:text-sm">
+                          {Decimal.from(value).format(1)} DPS
+                        </span>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="dps" 
+                stroke="#10b981" 
+                strokeWidth={1.5} 
+                fillOpacity={1} 
+                fill="url(#colorDps)" 
+                activeDot={{ r: 3.5, stroke: '#020617', strokeWidth: 1.5 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 

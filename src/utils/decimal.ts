@@ -200,6 +200,10 @@ export class Decimal {
     return `${this.mantissa.toFixed(3)}e${this.exponent}`;
   }
 
+  toNumber(): number {
+    return this.mantissa * Math.pow(10, this.exponent);
+  }
+
   format(prec: number = 2): string {
     if (this.mantissa === 0) return '0';
     

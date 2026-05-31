@@ -29,12 +29,48 @@ html, body, #root {
   to { transform: scale(1); opacity: 1; }
 }
 
+@keyframes cardPopIn {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+    filter: brightness(2) drop-shadow(0 0 0px rgba(245, 158, 11, 0));
+  }
+  65% {
+    transform: scale(1.1);
+    filter: brightness(1.4) drop-shadow(0 0 20px rgba(245, 158, 11, 0.8));
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: brightness(1) drop-shadow(0 0 12px rgba(245, 158, 11, 0.4));
+  }
+}
+
+@keyframes cardGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px 1px rgba(245, 158, 11, 0.3), inset 0 0 12px rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 24px 5px rgba(245, 158, 11, 0.7), inset 0 0 24px rgba(245, 158, 11, 0.35);
+    border-color: rgba(245, 158, 11, 0.9);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-scale-up {
   animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-card-pop {
+  animation: cardPopIn 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-card-glow {
+  animation: cardGlowPulse 1.6s ease-in-out infinite;
 }
 
 /* Custom Scrollbar */

@@ -307,7 +307,7 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
     switch (monsterStyleIndex) {
       case 0: // Blobby happy jelly
         return (
-          <svg viewBox="0 0 100 100" className="w-52 h-52 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
+          <svg viewBox="0 0 100 100" className="w-24 h-24 sm:w-28 sm:h-28 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
             {/* White paintable background, very thick chunky black borders */}
             <path
               d="M 50 15 C 20 15, 12 40, 12 70 C 12 85, 25 90, 50 90 C 75 90, 88 85, 88 70 C 88 40, 80 15, 50 15"
@@ -340,7 +340,7 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
         );
       case 1: // Cute Horned Cyclops or Monster-Egg
         return (
-          <svg viewBox="0 0 100 100" className="w-52 h-52 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
+          <svg viewBox="0 0 100 100" className="w-24 h-24 sm:w-28 sm:h-28 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
             <rect
               x="18"
               y="20"
@@ -373,7 +373,7 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
         );
       case 2: // The Starry Sprite
         return (
-          <svg viewBox="0 0 100 100" className="w-52 h-52 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
+          <svg viewBox="0 0 100 100" className="w-24 h-24 sm:w-28 sm:h-28 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
             {/* Cute star outline */}
             <path
               d="M 50 8 L 62 36 L 92 36 L 68 54 L 78 84 L 50 66 L 22 84 L 32 54 L 8 36 L 38 36 Z"
@@ -398,7 +398,7 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
         );
       case 3: // Sprout Plant-Cap Mascot
         return (
-          <svg viewBox="0 0 100 100" className="w-52 h-52 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
+          <svg viewBox="0 0 100 100" className="w-24 h-24 sm:w-28 sm:h-28 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
             {/* Body */}
             <path
               d="M 50 22 C 30 22, 18 35, 18 64 C 18 80, 28 85, 50 85 C 72 85, 82 80, 82 64 C 82 35, 70 22, 50 22"
@@ -428,7 +428,7 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
         );
       case 4: // Floating Ghost Sprite
         return (
-          <svg viewBox="0 0 100 100" className="w-52 h-52 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
+          <svg viewBox="0 0 100 100" className="w-24 h-24 sm:w-28 sm:h-28 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
             {/* Ghost body with wave tentacles on bottom */}
             <path
               d="M 50 15 C 24 15, 20 32, 20 60 Q 20 85, 30 80 Q 40 75, 50 81 Q 60 75, 70 80 Q 80 85, 80 60 C 80 32, 76 15, 50 15 Z"
@@ -447,7 +447,7 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
         );
       default: // Cute winged kitty blob
         return (
-          <svg viewBox="0 0 100 100" className="w-52 h-52 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
+          <svg viewBox="0 0 100 100" className="w-24 h-24 sm:w-28 sm:h-28 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.05)]">
             <path d="M 12 50 C 4 36, 12 28, 20 42" fill="white" stroke="black" strokeWidth="4" strokeLinejoin="round" /> {/* Left wing */}
             <path d="M 88 50 C 96 36, 88 28, 80 42" fill="white" stroke="black" strokeWidth="4" strokeLinejoin="round" /> {/* Right wing */}
             <circle cx="50" cy="52" r="32" fill="white" stroke="black" strokeWidth="5" />
@@ -474,7 +474,7 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
   const earthSpikePercent = Math.min((earthChargeTracker / 4) * 100, 100);
 
   return (
-    <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3 select-none" id="combat-viewport-panel">
+    <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col gap-2 sm:gap-3 select-none" id="combat-viewport-panel">
       {/* Stage Select Buttons */}
       <div className="flex items-center justify-between border-b border-slate-800/60 pb-2">
         <button
@@ -509,7 +509,7 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
       {/* Main Vector Card Viewport with HTML5 Canvas overlaid */}
       <div 
         ref={containerRef}
-        className="relative w-full aspect-[4/3] max-h-76 bg-slate-950/80 border border-cyan-500/20 rounded-2xl flex items-center justify-center overflow-hidden cursor-crosshair group flex-col"
+        className="relative w-full h-[180px] sm:h-[220px] bg-slate-950/80 border border-cyan-500/20 rounded-xl flex items-center justify-center overflow-hidden cursor-crosshair group flex-col"
         id="combat-target-container"
         onClick={handleTap}
         onTouchStart={handleTouchStart}
@@ -537,20 +537,20 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
         </div>
 
         {/* Dynamic Vector Creature - Pure white box with clean lines */}
-        <div className="transform group-active:scale-95 group-hover:scale-103 transition-transform duration-100 ease-out z-10 select-none pointer-events-none flex items-center justify-center bg-white p-3.5 rounded-2xl border-4 border-black border-dashed">
+        <div className="transform group-active:scale-95 group-hover:scale-102 transition-transform duration-100 ease-out z-10 select-none pointer-events-none flex items-center justify-center bg-white p-2 rounded-xl border-2 border-black border-dashed">
           {renderLineArtMonsterSVG()}
         </div>
       </div>
 
       {/* Monster HP bar & Elements debuffs log */}
-      <div className="w-full flex flex-col gap-2" id="hp-indicator-box">
+      <div className="w-full flex flex-col gap-1.5" id="hp-indicator-box">
         <div className="flex items-center justify-between text-xs font-mono">
           <span className="text-slate-350 font-bold truncate max-w-[160px]" id="creature-name">{monsterName}</span>
           <span className="text-red-400 font-bold">{hpString}</span>
         </div>
 
         {/* Custom HP Bar with glow transitions */}
-        <div className="w-full h-3 bg-slate-950 rounded border border-slate-800 p-0.5 overflow-hidden">
+        <div className="w-full h-2.5 bg-slate-950 rounded border border-slate-800 p-0.5 overflow-hidden">
           <div 
             className={`h-full bg-gradient-to-r transition-all duration-100 rounded-sm ${
               isBossMode 
@@ -562,21 +562,21 @@ export const CombatZone: React.FC<CombatZoneProps> = ({
         </div>
 
         {/* Elements active timing status */}
-        <div className="grid grid-cols-3 gap-2 mt-1 pt-1.5 border-t border-slate-800/60 text-[10px] font-mono leading-tight">
+        <div className="grid grid-cols-3 gap-1.5 mt-1 pt-1 border-t border-slate-800/60 text-[9px] font-mono leading-tight">
           {/* Poison */}
-          <div className="flex flex-col bg-slate-850 p-1.5 rounded border border-slate-800/80 text-center">
+          <div className="flex flex-col bg-slate-850 p-1 sm:p-1.5 rounded border border-slate-800/80 text-center">
             <span className="text-emerald-400 font-bold uppercase tracking-tighter">🧪 {language === 'ro' ? 'OTRAVĂ' : 'POISON'}</span>
             <span className="text-slate-300 font-black mt-0.5">{activePoisonDps.gt(0) ? `${activePoisonDps.format(0)}/s` : '—'}</span>
           </div>
 
           {/* Ice */}
-          <div className="flex flex-col bg-slate-850 p-1.5 rounded border border-slate-800/80 text-center">
+          <div className="flex flex-col bg-slate-850 p-1 sm:p-1.5 rounded border border-slate-800/80 text-center">
             <span className="text-cyan-400 font-bold uppercase tracking-tighter">❄️ {language === 'ro' ? 'ÎNGHEȚ' : 'CHILL'}</span>
             <span className="text-slate-300 font-black mt-0.5">{activeIceDps.gt(0) ? `${activeIceDps.format(0)}/s` : '—'}</span>
           </div>
 
           {/* Earth Grid */}
-          <div className="flex flex-col bg-slate-850 p-1.5 rounded border border-slate-800/80 text-center relative overflow-hidden">
+          <div className="flex flex-col bg-slate-850 p-1 sm:p-1.5 rounded border border-slate-800/80 text-center relative overflow-hidden">
             <span className="text-amber-500 font-bold uppercase tracking-tighter">⛰️ {language === 'ro' ? 'SEISMIC' : 'SEISMIC'}</span>
             <div className="w-full h-1 bg-slate-900 rounded mt-1 overflow-hidden" title="Seismic Spike timing indicator">
               <div 

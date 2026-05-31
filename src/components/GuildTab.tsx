@@ -8,6 +8,7 @@ import { Award, Shield, Swords, Coins, Sparkles, AlertTriangle, Key, HelpCircle 
 import { GuildType, GuildPerk } from '../types/game';
 import { Decimal } from '../utils/decimal';
 import { translations, perkNames } from '../utils/translations';
+import { calculateSynergies } from '../utils/synergy';
 
 interface GuildTabProps {
   currentStage: number;
@@ -25,6 +26,7 @@ interface GuildTabProps {
     portalScroll: number;
     masterBuilder: number;
   };
+  playerCardState: Record<string, { level: number; silverLevel: number }>;
   onBuyPerk: (perkId: string, costGP: number) => void;
   onPrestige: (selectedGuild: GuildType, pointsEarned: number) => void;
   language?: 'en' | 'ro';
@@ -37,6 +39,7 @@ export const GuildTab: React.FC<GuildTabProps> = ({
   activeGuild,
   guildLevels,
   perks,
+  playerCardState,
   onBuyPerk,
   onPrestige,
   language = 'en',
@@ -47,8 +50,12 @@ export const GuildTab: React.FC<GuildTabProps> = ({
 
   const IS_PRESTIGE_LOCKED = highestStageReached < 50;
 
-  // Formula: GP = floor((HighestStageReach - 45) / 5)
-  const potentialGuildPoints = Math.max(0, Math.floor((highestStageReached - 45) / 5));
+  // Formula: GP = floor((HighestStageReach - 45) / 5) with synergy combo multiplier
+  const activeSynergiesObj = calculateSynergies(playerCardState || {});
+  const allianceSynergy = activeSynergiesObj.find(s => s.id === 'vanguard_accord');
+  const gpMultiplier = allianceSynergy && allianceSynergy.isActive ? allianceSynergy.multiplier : 1;
+  const basePotentialGuildPoints = Math.max(0, Math.floor((highestStageReached - 45) / 5));
+  const potentialGuildPoints = Math.floor(basePotentialGuildPoints * gpMultiplier);
 
   // Perks configurations & pricing
   const perkList = [
@@ -161,6 +168,11 @@ export const GuildTab: React.FC<GuildTabProps> = ({
                   <span className="text-base font-black text-fuchsia-400 font-mono mt-1 leading-none">
                     +{potentialGuildPoints} {language === 'ro' ? 'Puncte de Ghildă (GP)' : 'Guild Points'}
                   </span>
+                  {allianceSynergy && allianceSynergy.isActive && (
+                    <span className="text-[9px] font-black text-emerald-400 font-mono mt-1 block tracking-tight leading-none animate-bounce">
+                      ✨ Synergy: +{((allianceSynergy.multiplier - 1) * 100).toFixed(1)}%
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
